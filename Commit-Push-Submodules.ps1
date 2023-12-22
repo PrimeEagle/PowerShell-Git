@@ -6,7 +6,6 @@ param (
 function ProcessSubmodule($path, $basePath) {
     Write-Host "Processing submodule: $path"
 
-    # Construct the full path to the submodule
     $fullPath = Join-Path $basePath $path
     Push-Location $fullPath
 
@@ -34,11 +33,9 @@ function ProcessSubmodule($path, $basePath) {
     Pop-Location
 }
 
-# Initialize and update submodules
 git submodule update --init --recursive
-
-# Get and process top-level submodules
 $submodulePaths = git submodule --quiet foreach 'echo $path'
+
 foreach ($path in $submodulePaths) {
     ProcessSubmodule $path (Get-Location)
 }

@@ -3,39 +3,55 @@ param (
     [string]$Message
 )
 
+Write-Host "WARNING: This script will reset all submodules to their remote states."
+Write-Host "All local changes in the submodules will be lost."
+Write-Host "Do you want to continue? [Y/N]"
+
+$confirmation = Read-Host
+if ($confirmation -ne 'Y' -and $confirmation -ne 'y') {
+    Write-Host "Script aborted by user."
+    exit
+}
+
 function UpdateSubmodule($path) {
     Write-Host "Updating submodule: $path"
 
     Push-Location $path
 
-    $isDetached = git symbolic-ref -q HEAD
-    if ($null -eq $isDetached) {
-        Write-Host "Submodule $path is in a detached HEAD state. Checking for the branch to update."
-        $defaultBranch = git remote show origin | Select-String 'HEAD branch' | ForEach-Object { $_ -replace '.*HEAD branch: ', '' }
-        Write-Host "Attempting to update to branch: $defaultBranch"
-        git checkout $defaultBranch
+    git checkout main
+    git fetch origin
+    git reset --hard origin/main
+    git clean -fd
+    git submodule update --init --recursive
+
+    $changes = git status --porcelain
+    if ($changes) {
+        git add .
+        git commit -m "Update submodule $path and its nested submodules"
     }
 
-    git fetch
-    git checkout $defaultBranch
-    git pull
-
-    $nestedSubmodules = git submodule --quiet foreach 'echo $path'
+    $nestedSubmodules = git submodule foreach --recursive --quiet 'echo $path'
     foreach ($nestedPath in $nestedSubmodules) {
         UpdateSubmodule $nestedPath
+
+        $nestedChanges = git status --porcelain
+        if ($nestedChanges) {
+            git add .
+            git commit -m "Update nested submodule $nestedPath"
+        }
     }
 
     Pop-Location
 }
 
-# Initialize and update submodules
+git pull origin main
 git submodule update --init --recursive
+$submodulePaths = git submodule foreach --recursive --quiet 'echo $path'
 
-$submodulePaths = git submodule --quiet foreach 'echo $path'
 foreach ($path in $submodulePaths) {
     UpdateSubmodule $path
 }
 
 git add .
 git commit -m "$Message"
-git push
+git push origin main
