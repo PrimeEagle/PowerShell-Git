@@ -21,5 +21,5 @@ Get-Content $mappingFilePath | ForEach-Object {
 $emailMapJson = $emailMap | ConvertTo-Json
 $nameMapJson = $nameMap | ConvertTo-Json
 
-git filter-repo --email-callback "emailMap = $emailMapJson; return emailMap.get(original_email, original_email)" `
+git filter-repo --force --email-callback "emailMap = $emailMapJson; return emailMap.get(original_email, original_email)" `
                 --name-callback "nameMap = $nameMapJson; return nameMap.get(original_name, original_name)"
