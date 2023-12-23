@@ -1,8 +1,12 @@
+# run the below line manually in PowerShell in order to store your token
+# Get-Credential -UserName 'GitHub' -Message 'Enter your PAT' | Export-CliXml -Path "path\to\your\secure\file.xml"
+
+
 # Define NuGet sources
 $nugetSources = @("https://api.nuget.org/v3/index.json", "https://nuget.pkg.github.com/PrimeEagle/index.json")
 
 # Retrieve the GitHub PAT from a secure location
-$githubPat = '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' # Replace with the method to retrieve your PAT securely
+$githubPat = Import-CliXml -Path "D:\My Code\PowerShell Scripts\secure.xml"
 
 # Configure NuGet to authenticate with GitHub Packages
 nuget sources Add -Name "GitHub" -Source "https://nuget.pkg.github.com/PrimeEagle/index.json" -Username PrimeEagle -Password $githubPat
