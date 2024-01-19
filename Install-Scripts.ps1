@@ -47,6 +47,9 @@ Process
 {	
 	Add-PathToProfile -PathVariable 'Path' -Path (Get-Location).Path
 	Add-PathToProfile -PathVariable 'PSModulePath' -Path $ModulesPath
+	
+	Add-AliasToProfile -Script 'Get-GitHelp' -Alias 'ghelp'
+	Add-AliasToProfile -Script 'Get-GitHelp' -Alias 'ggh'
 }
 
 End

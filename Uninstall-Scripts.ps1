@@ -46,6 +46,9 @@ Begin
 Process
 {	
 	Remove-PathFromProfile -PathVariable 'Path' -Path (Get-Location).Path
+	
+	Remove-AliasFromProfile -Script 'Get-GitHelp' -Alias 'ghelp'
+	Remove-AliasFromProfile -Script 'Get-GitHelp' -Alias 'ggh'
 }
 
 End
