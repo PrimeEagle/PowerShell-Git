@@ -1,1 +1,0 @@
-git log --all --format='%aN <%aE>' | Sort-Object | Get-Unique
