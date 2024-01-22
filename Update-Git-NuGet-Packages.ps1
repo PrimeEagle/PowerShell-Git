@@ -43,8 +43,8 @@ param (
 		[Parameter(Mandatory = $true, ParameterSetName = "github")]	[string]$GitHubSourceName,
 		[Parameter(Mandatory = $true, ParameterSetName = "github")]	[string]$GitHubUsername,
 		[Parameter(Mandatory = $true, ParameterSetName = "github")]	[string]$PatFileName,
-		[Parameter(ParameterSetName = "nuget"]
-		[Parameter(ParameterSetName = "github"]						[string]$Message = "Update NuGet packages to latest versions"
+		[Parameter(ParameterSetName = "nuget")]
+		[Parameter(ParameterSetName = "github")]					[string]$Message = "Update NuGet packages to latest versions"
 	  )
 DynamicParam { Build-BaseParameters }
 

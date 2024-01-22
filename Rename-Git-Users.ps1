@@ -23,7 +23,7 @@ using module Varan.PowerShell.Validation
 #Requires -Modules Varan.PowerShell.Validation
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param (	
-		[Parameter(Mandatory = $true)	[string]$MappingFile
+		[Parameter(Mandatory = $true)]	[string]$MappingFile
 	  )
 DynamicParam { Build-BaseParameters }
 
