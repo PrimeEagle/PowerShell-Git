@@ -26,7 +26,7 @@
 #Requires -Modules Varan.PowerShell.Validation
 using module Varan.PowerShell.Validation
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'None')]
 param (	
 	  )
 DynamicParam { Build-BaseParameters }

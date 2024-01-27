@@ -16,7 +16,7 @@
 #>
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Requires -Version 5.0
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
 param ([Parameter()] [switch] $UpdateHelp,
 	   [Parameter(Mandatory = $true)] [string] $ModulesPath)
 
