@@ -63,7 +63,10 @@ Process
 		$isDebug = Assert-Debug
 		
 		$tempDir = Join-Path -Path $Env:TEMP -ChildPath ("git-" + [Guid]::NewGuid().ToString())
-		git clone -b $SourceBranch $SourceRepoUrl $tempDir
+        if ($PSCmdlet.ShouldProcess($SourceRepoUrl, 'Clone from git.')) 
+        {
+		    git clone -b $SourceBranch $SourceRepoUrl $tempDir
+        }
 		cd $tempDir
 
 		if ($FilePathToCopy -ne "") {
@@ -72,8 +75,11 @@ Process
 			git filter-repo
 		}
 
-		git remote add target $TargetRepoUrl
-		git push --force target HEAD:$TargetBranch
+        if ($PSCmdlet.ShouldProcess($TargetRepoUrl, 'Create in git.')) 
+        {
+		    git remote add target $TargetRepoUrl
+		    git push --force target HEAD:$TargetBranch
+        }
 
 		cd ..
 		Remove-Item $tempDir -Recurse -Force

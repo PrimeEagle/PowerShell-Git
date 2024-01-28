@@ -53,17 +53,29 @@ Process
 			Push-Location $fullPath
 
 			$isDetached = git symbolic-ref -q HEAD
-			if ($null -eq $isDetached) {
+			if ($null -eq $isDetached) 
+            {
 				Write-Host "Submodule $path is in a detached HEAD state. Skipping commit/push for this submodule."
-			} else {
-				git pull
-				git add .
+			} 
+            else 
+            {
+                if ($PSCmdlet.ShouldProcess("", 'Git pull and add.')) 
+                {
+				    git pull
+				    git add .
+                }
 
 				$status = git status --porcelain
-				if ($status) {
-					git commit -m "$Message"
-					git push
-				} else {
+				if ($status) 
+                {
+                    if ($PSCmdlet.ShouldProcess($Message, 'Commit to git.')) 
+                    {
+					    git commit -m "$Message"
+					    git push
+                    }
+				}
+                else 
+                {
 					Write-Host "No changes to commit for submodule: $path"
 				}
 			}
@@ -76,7 +88,10 @@ Process
 			Pop-Location
 		}
 
-		git submodule update --init --recursive
+        if ($PSCmdlet.ShouldProcess("", 'Update from git.')) 
+        {
+		    git submodule update --init --recursive
+        }
 		$submodulePaths = git submodule --quiet foreach 'echo $path'
 
 		foreach ($path in $submodulePaths) {

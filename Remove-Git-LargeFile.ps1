@@ -22,7 +22,7 @@ using module Varan.PowerShell.Validation
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Requires -Version 5.0
 #Requires -Modules Varan.PowerShell.Validation
-[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
 param (	
 		[Parameter(Mandatory = $true)]	[string]$FileName
 	  )
@@ -53,8 +53,14 @@ Process
 			git reset HEAD -- $FileName
 		}
 
-		git rm --force --cached $FileName
-		Remove-Item $FileName -ErrorAction SilentlyContinue
+        if ($PSCmdlet.ShouldProcess($FileName, 'Remove from git.')) 
+        {
+		    git rm --force --cached $FileName
+        }
+        if ($PSCmdlet.ShouldProcess($FileName, 'Remove-Item.')) 
+        {
+		    Remove-Item $FileName -ErrorAction SilentlyContinue
+        }
 	}
 	catch [System.Exception]
 	{

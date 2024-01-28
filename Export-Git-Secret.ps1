@@ -27,7 +27,7 @@ using module Varan.PowerShell.Validation
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Requires -Version 5.0
 #Requires -Modules Varan.PowerShell.Validation
-[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
 param (	
 		[Parameter]	[string]$Name,
 		[Parameter(Mandatory = $true)]	[string]$Secret,
@@ -62,7 +62,10 @@ Process
 			$userName = $Name
 		}
 		
-		Get-Credential -UserName $userName -Message $Secret | Export-CliXml -Path $XmlFileName
+        if ($PSCmdlet.ShouldProcess($Secret, "Export to file $XmlFileName.")) 
+        {
+		    Get-Credential -UserName $userName -Message $Secret | Export-CliXml -Path $XmlFileName
+        }
 	}
 	catch [System.Exception]
 	{

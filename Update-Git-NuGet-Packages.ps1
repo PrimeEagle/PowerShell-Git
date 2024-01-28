@@ -90,35 +90,38 @@ Process
 			$packageReferences = $csprojContent.SelectNodes("//PackageReference")
 
 			foreach ($packageReference in $packageReferences) {
-				$packageName = $packageReference.GetAttribute("Include")
-				$currentVersion = $packageReference.GetAttribute("Version")
-				$latestVersion = $null
-				Write-Host "Checking package $packageName (current version: $currentVersion)"
+                if ($PSCmdlet.ShouldProcess($packageReference, 'Update NuGet version.')) 
+                {
+				    $packageName = $packageReference.GetAttribute("Include")
+				    $currentVersion = $packageReference.GetAttribute("Version")
+				    $latestVersion = $null
+				    Write-Host "Checking package $packageName (current version: $currentVersion)"
 
-				$nugetSearchOutput = & nuget search "$packageName" -Source $source #-PreRelease
-				if ($NuGetSourceUrl) {
-					if ([string]$nugetSearchOutput -match [string]"\> $packageName\s+\|\s+(\S+)\s+\|") {
-						$latestVersion = $matches[1]
-					}
-				} elseif ($GitHubSourceUrl) {
-					if ([string]$nugetSearchOutput -match [string]"\> $packageName\s+\|\s+(\S+)\s+\|") {
-						$latestVersion = $matches[1]
-					}
-				}
+				    $nugetSearchOutput = & nuget search "$packageName" -Source $source #-PreRelease
+				    if ($NuGetSourceUrl) {
+					    if ([string]$nugetSearchOutput -match [string]"\> $packageName\s+\|\s+(\S+)\s+\|") {
+						    $latestVersion = $matches[1]
+					    }
+				    } elseif ($GitHubSourceUrl) {
+					    if ([string]$nugetSearchOutput -match [string]"\> $packageName\s+\|\s+(\S+)\s+\|") {
+						    $latestVersion = $matches[1]
+					    }
+				    }
 
-				if ($latestVersion) {
-					Write-Host "Found latest version $latestVersion for package $packageName in source $source"
-					break
-				}
+				    if ($latestVersion) {
+					    Write-Host "Found latest version $latestVersion for package $packageName in source $source"
+					    break
+				    }
 
-				if ($latestVersion -and ($latestVersion -ne $currentVersion)) {
-					$packageReference.SetAttribute("Version", $latestVersion)
-					Write-Host "Updated package $packageName from version $currentVersion to version $latestVersion"
-				} elseif (-not $latestVersion) {
-					Write-Warning "Latest version for package $packageName not found in any sources"
-				} else {
-					Write-Host "Package $packageName is already at the latest version $currentVersion"
-				}
+				    if ($latestVersion -and ($latestVersion -ne $currentVersion)) {
+					    $packageReference.SetAttribute("Version", $latestVersion)
+					    Write-Host "Updated package $packageName from version $currentVersion to version $latestVersion"
+				    } elseif (-not $latestVersion) {
+					    Write-Warning "Latest version for package $packageName not found in any sources"
+				    } else {
+					    Write-Host "Package $packageName is already at the latest version $currentVersion"
+				    }
+                }
 			}
 
 			try {
@@ -137,41 +140,64 @@ Process
 		}
 
 		foreach ($submodule in $submodules) {
-			Push-Location $submodule
+            if ($PSCmdlet.ShouldProcess($submodule, 'Push-Location.')) 
+            {
+			    Push-Location $submodule
+            }
 
-			git checkout main
-			git stash
-			git pull --rebase
-			git stash pop
+            if ($PSCmdlet.ShouldProcess($submodule, 'Rebase from git.')) 
+            {
+			    git checkout main
+			    git stash
+			    git pull --rebase
+			    git stash pop
+            }
 
 			$csProjPath = Get-ChildItem -Recurse -Filter *.csproj
 			foreach ($file in $csProjPath) {
 				Update-NuGetPackagesInCsproj -csprojPath $file.FullName
-				git add $file.FullName
+
+                if ($PSCmdlet.ShouldProcess($file.FullName, 'Add to git.')) 
+                {
+				    git add $file.FullName
+                }
 			}
 
 			if (git commit -m $Message) {
-				git push origin main
+                if ($PSCmdlet.ShouldProcess($Message, 'Push to git.')) 
+                {
+				    git push origin main
+                }
 			}
 
 			Pop-Location
 		}
 
-		git stash
-		git checkout main
-		git pull --rebase
-		git stash pop
+        if ($PSCmdlet.ShouldProcess($submodule, 'Rebase from git.')) 
+        {
+		    git stash
+		    git checkout main
+		    git pull --rebase
+		    git stash pop
+        }
 
 		$csprojFiles = Get-ChildItem -Recurse -Filter *.csproj -Exclude .git, .gitmodules
 		foreach ($file in $csprojFiles) {
 			if ($file.FullName -notin $submoduleFiles) {
 				Update-NuGetPackagesInCsproj -csprojPath $file.FullName
-				git add $file.FullName
+
+                if ($PSCmdlet.ShouldProcess($file.FullName, 'Add to git.')) 
+                {
+				    git add $file.FullName
+                }
 			}
 		}
 
 		if (git commit -m $Message) {
-			git push origin main
+            if ($PSCmdlet.ShouldProcess($Message, 'Push to git.')) 
+            {
+			    git push origin main
+            }
 		}
 	}
 	catch [System.Exception]

@@ -71,11 +71,18 @@ Process
 
 		$itemsToRemove = $relativeItems | Where-Object { Test-GitIgnoreMatch $_ $gitIgnorePatterns }
 
-		foreach ($item in $itemsToRemove) {
-			git rm --cached $item -r
+		foreach ($item in $itemsToRemove) 
+        {
+            if ($PSCmdlet.ShouldProcess($item, 'Remove from git.')) 
+            {
+			    git rm --cached $item -r
+            }
 		}
 
-		git commit -m $Message
+        if ($PSCmdlet.ShouldProcess($Message, 'Commit to git.')) 
+        {
+		    git commit -m $Message
+        }
 	}
 	catch [System.Exception]
 	{

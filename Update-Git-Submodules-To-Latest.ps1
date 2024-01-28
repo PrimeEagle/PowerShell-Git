@@ -49,16 +49,20 @@ Process
 		function UpdateSubmodule($path) {
 			Write-Host "Updating submodule: $path"
 
-			git -C $path fetch origin
-			git -C $path reset --hard origin/main
-			git -C $path clean -fd
-			git -C $path submodule update --init --recursive
+            if ($PSCmdlet.ShouldProcess($path, 'Update to latest git version.')) 
+            {
+			    git -C $path fetch origin
+			    git -C $path reset --hard origin/main
+			    git -C $path clean -fd
+			    git -C $path submodule update --init --recursive
+            }
 		}
 
 		git pull origin main
 
 		$submodules = git submodule foreach --quiet --recursive 'echo $path'
-		foreach ($path in $submodules) {
+		foreach ($path in $submodules) 
+        {
 			UpdateSubmodule $path
 		}
 
